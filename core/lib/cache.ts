@@ -33,4 +33,3 @@ export function updateFunctionCache(pluginName: string, pluginCode: string) {
 
 // 导出缓存
 export { functionCache };
-s
