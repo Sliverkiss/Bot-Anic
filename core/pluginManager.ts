@@ -34,7 +34,10 @@ export class PluginManager {
       try {
         await this.sandbox.execute(pluginCode, ctx);
       } catch (error) {
-        await ctx.reply(`<b>⚠️ Error executing plugin ${pluginName}:</b>\n<pre>${error.message}</pre>`,{ parse_mode: 'HTML' });
+        await ctx.reply(
+          `<b>⚠️ Error executing plugin ${pluginName}:</b>\n<pre>${error.message}</pre>`,
+          { parse_mode: "HTML" }
+        );
         console.error(`❌ [${pluginName}] 插件调用失败:`, error.message);
       }
     }
@@ -46,7 +49,8 @@ export class PluginManager {
 
     for await (const event of watcher) {
       if (
-        event.kind === "modify" || event.kind === "create" ||
+        event.kind === "modify" ||
+        event.kind === "create" ||
         event.kind === "remove"
       ) {
         // 清除上一次的防抖定时器
@@ -57,8 +61,8 @@ export class PluginManager {
         // 延迟防抖处理
         this.debounceTimeoutId = setTimeout(async () => {
           for (const filePath of event.paths) {
-            const pluginName = filePath.split("/").pop()?.replace(".ts", "") ||
-              "";
+            const pluginName =
+              filePath.split("/").pop()?.replace(".ts", "") || "";
 
             // 如果文件修改时间在防抖延迟期间没有变化，则跳过
             const currentTime = Date.now();
@@ -76,10 +80,9 @@ export class PluginManager {
             if (pluginName) {
               try {
                 const pluginCode = await Deno.readTextFile(filePath);
-
                 // 更新缓存
-                updateFunctionCache(pluginName, pluginCode);
-                console.log(`✅ [${pluginName}] 插件重载完成`)
+                await updateFunctionCache(pluginName, pluginCode);
+                console.log(`✅ [${pluginName}] 插件重载完成`);
               } catch (error) {
                 console.error(`Error executing plugin ${pluginName}:`, error);
               }

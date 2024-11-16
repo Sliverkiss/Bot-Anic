@@ -51,16 +51,10 @@ class Sandbox {
 
   // 运行代码，进行模块加载
   private async runInSandbox(code: string, context: Record<string, any>) {
-    // 使用 esbuild 编译 TypeScript
-    const { code: jsCode } = await esbuild.transform(code, {
-      loader: "ts",
-      format: "esm",
-      target: "esnext",
-    });
-
     // 将代码转换为模块 Blob URL（适用于 Deno 的环境）
-    const blob = new Blob([jsCode], { type: "application/javascript" });
+    const blob = new Blob([code], { type: "application/javascript" });
     const url = URL.createObjectURL(blob);
+    
 
     try {
       const module = await import(url); // 使用 import 动态导入模块
