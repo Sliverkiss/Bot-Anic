@@ -1,6 +1,7 @@
 import { dirname, join, resolve } from "path";
+import { Content } from "telegraf";
 
-export default async function (ctx) {
+export default async function (ctx: Content) {
   if (!ctx?.message?.text.startsWith(",apt")) return;
   //移除插件
   if (ctx?.message?.text.startsWith(",apt remove")) {
@@ -17,7 +18,7 @@ export default async function (ctx) {
       await Deno.remove(pluginDir);
       await ctx.reply(`移除${pluginName}插件成功喵～`);
     } catch (error) {
-      throw new Error(`移除插件失败！${error.message}`);
+      throw new Error(`移除插件失败！${error}`);
     }
   } else if (ctx?.message?.text.startsWith(",apt install")) {
     const message = ctx?.message?.reply_to_message;
@@ -48,7 +49,7 @@ export default async function (ctx) {
       await Deno.writeTextFile(pluginDir, pluginContent);
       await ctx.reply(`添加 [${pluginName}] 插件成功喵～`);
     } catch (error) {
-      throw new Error(`移除插件失败！${error.message}`);
+      throw new Error(`移除插件失败！${error}`);
     }
   } else {
     await ctx.reply(",apt install\t直接回复文件\n ,apt remove [插件名]");

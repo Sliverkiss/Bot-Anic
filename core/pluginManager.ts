@@ -35,10 +35,10 @@ export class PluginManager {
         await this.sandbox.execute(pluginCode, ctx);
       } catch (error) {
         await ctx.reply(
-          `<b>⚠️ Error executing plugin ${pluginName}:</b>\n<pre>${error.message}</pre>`,
+          `<b>⚠️ Error executing plugin ${pluginName}:</b>\n<pre>${error}</pre>`,
           { parse_mode: "HTML" }
         );
-        console.error(`❌ [${pluginName}] 插件调用失败:`, error.message);
+        console.error(`❌ [${pluginName}] 插件调用失败:`, error);
       }
     }
   }

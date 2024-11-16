@@ -1,7 +1,16 @@
 {
   "tasks": {
-    "start": "deno run --import-map=import_map.json -c tsconfig.json --allow-all app.ts",
+    "start": "deno -A app.ts",
     "build": "deno build --unstable --out dist/main.js src/main.ts"
+  },
+  "imports": {
+    "telegraf": "https://esm.sh/telegraf@4.16.0",
+    "path": "https://deno.land/std@0.125.0/path/mod.ts",
+    "dotenv": "https://deno.land/x/dotenv/mod.ts",
+    "esbuild":"https://deno.land/x/esbuild@v0.24.0/mod.js",
+    "QingLong":"./core/lib/QingLong.ts",
+    "MongoDB":"./core/lib/MongoDB.ts",
+    "ToolClient":"./core/lib/ToolClient.ts"
   },
   "compilerOptions": {
     "strict": true,
