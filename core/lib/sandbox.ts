@@ -57,7 +57,7 @@ class Sandbox {
           throw new Error('Module must export a default function.');
         }
       } catch (error) {
-        throw new Error(`Failed to execute sandbox code: ${error.message}`);
+        throw new Error(`Failed to execute sandbox code: ${error}`);
       } finally {
         // 清理 Blob URL，避免内存泄漏
         URL.revokeObjectURL(url);

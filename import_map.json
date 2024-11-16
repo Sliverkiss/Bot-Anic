@@ -1,8 +1,9 @@
 {
-    "imports": {
-      "telegraf": "https://esm.sh/telegraf@4.16.0",
-      "path": "https://deno.land/std@0.125.0/path/mod.ts",
-      "dotenv":"https://deno.land/x/dotenv/mod.ts"
-    }
+  "imports": {
+    "telegraf": "https://esm.sh/telegraf@4.16.0",
+    "path": "https://deno.land/std@0.125.0/path/mod.ts",
+    "dotenv": "https://deno.land/x/dotenv/mod.ts",
+    "QingLong":"./core/lib/QingLong.ts",
+    "MongoDB":"./core/lib/MongoDB.ts"
   }
-  
+}

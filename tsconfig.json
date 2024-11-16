@@ -1,9 +1,8 @@
 {
-    "compilerOptions": {
-      "strict": true,
-      "allowJs": true,
-      "emitDecoratorMetadata": true,
-      "experimentalDecorators": true
-    }
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   }
-  
+}
