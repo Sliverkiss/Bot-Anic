@@ -2,5 +2,11 @@
   "tasks": {
     "start": "deno run --import-map=import_map.json -c tsconfig.json --allow-all app.ts",
     "build": "deno build --unstable --out dist/main.js src/main.ts"
+  },
+  "compilerOptions": {
+    "strict": true,
+    "allowJs": true,
+    "emitDecoratorMetadata": true,
+    "experimentalDecorators": true
   }
 }
