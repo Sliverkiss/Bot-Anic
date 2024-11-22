@@ -3,6 +3,7 @@ import {
   functionCache,
   initializeFunctionCache,
   updateFunctionCache,
+  pluginList,
 } from "./lib/cache.ts";
 import { Content } from "telegraf";
 
@@ -29,16 +30,17 @@ export class PluginManager {
 
   // 遍历缓存并执行每个插件
   async executePlugins(ctx: Content) {
-    // 遍历缓存并执行每个插件
-    for (const [pluginName, pluginCode] of functionCache.entries()) {
+    // 遍历插件列表并执行每个插件
+    for (const plugin of pluginList) {
+      const pluginCode = functionCache.get(plugin.uuid)||"";
       try {
         await this.sandbox.execute(pluginCode, ctx);
       } catch (error) {
         await ctx.reply(
-          `<b>⚠️ Error executing plugin ${pluginName}:</b>\n<pre>${error}</pre>`,
+          `<b>⚠️ Error executing plugin ${plugin?.uuid}:</b>\n<pre>${error}</pre>`,
           { parse_mode: "HTML" }
         );
-        console.error(`❌ [${pluginName}] 插件调用失败:`, error);
+        console.error(`❌ [${plugin?.uuid}] 插件调用失败:`, error);
       }
     }
   }

@@ -1,6 +1,6 @@
 {
   "tasks": {
-    "start": "deno -A app.ts",
+    "start": "deno -c deno.json -A app.ts",
     "build": "deno build --unstable --out dist/main.js src/main.ts"
   },
   "imports": {
@@ -8,14 +8,12 @@
     "path": "https://deno.land/std@0.125.0/path/mod.ts",
     "dotenv": "https://deno.land/x/dotenv/mod.ts",
     "esbuild":"https://deno.land/x/esbuild@v0.24.0/mod.js",
+    "decorators":"./core/lib/decorators.ts",
+    "kv":"'./core/kv/db.ts",
+    "cache":"./core/lib/cache.ts",
     "QingLong":"./core/lib/QingLong.ts",
     "MongoDB":"./core/lib/MongoDB.ts",
-    "ToolClient":"./core/lib/ToolClient.ts"
-  },
-  "compilerOptions": {
-    "strict": true,
-    "allowJs": true,
-    "emitDecoratorMetadata": true,
-    "experimentalDecorators": true
+    "ToolClient":"./core/lib/ToolClient.ts",
+    "Utils":"./core/utils/index.ts"
   }
 }
