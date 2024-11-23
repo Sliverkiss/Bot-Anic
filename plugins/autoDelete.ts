@@ -6,7 +6,7 @@
 
 import { Content } from 'telegraf';  // 根据需要引入 telegraf 的类型
 
-export default async function (ctx: Content) {
+export default function (ctx: Content) {
     // 存储原始的 ctx.reply 方法
     const originalReply = ctx.reply.bind(ctx);
 

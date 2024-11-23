@@ -6,15 +6,22 @@
 
 import { Content } from "telegraf";
 import { pluginCache } from "cache";
+import { toYml } from "Utils";
+import { command } from "decrateor";
 
-export default function (ctx: Content) {
-  if (!ctx?.message?.text?.startsWith(",help")) return;
-  const [, pluginName] = ctx?.message?.text?.split(" ");
-  const plugin = pluginCache.get(pluginName);
-  if (plugin) {
-    //回复
-    ctx.reply(JSON.stringify(plugin));
+export default command(",help")((ctx: Content) => {
+  if (ctx?.message?.text == ",help list") {
+    ctx.reply(`<pre>${Array.from(pluginCache.keys()).join(",")}</pre>`, {
+      parse_mode: "HTML",
+    });
   } else {
-    ctx.reply("查找的插件信息不存在");
+    const [, pluginName] = ctx?.message?.text?.split(" ");
+    const plugin = pluginCache.get(pluginName);
+    if (plugin) {
+      //回复
+      ctx.reply(`<pre>${toYml(plugin)}</pre>`, { parse_mode: "HTML" });
+    } else {
+      ctx.reply("查找的插件信息不存在");
+    }
   }
-}
+});

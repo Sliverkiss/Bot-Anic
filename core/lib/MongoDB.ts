@@ -1,4 +1,4 @@
-class MongoDB {
+export class MongoDB {
   BASE_URL: string;
   dataSource: string;
   database: string;
@@ -183,5 +183,3 @@ class MongoDB {
     return await this.commonPost(opts);
   }
 }
-
-export { MongoDB };

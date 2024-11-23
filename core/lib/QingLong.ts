@@ -1,4 +1,4 @@
-class QingLong {
+export class QingLong {
     private host: string;
     private clientId: string;
     private clientSecret: string;
@@ -254,5 +254,3 @@ class QingLong {
         }
     }
 }
-
-export { QingLong };

@@ -1,4 +1,4 @@
- /*
+/*
 !name=apt命令
 !desc=用于安装卸载插件
 !priority=8
@@ -6,13 +6,10 @@
 
 import { dirname, resolve, join } from "path";
 import { Content } from "telegraf";
+import { command } from "decrateor";
 
-
-export default async function (ctx: Content) {
+export default command(",apt")(async (ctx: Content) => {
   const messageText = ctx?.message?.text ?? "";
-
-  if (!messageText.startsWith(",apt")) return;
-
   const [, action, pluginName] = messageText.split(" ");
 
   // 处理移除插件
@@ -28,7 +25,7 @@ export default async function (ctx: Content) {
   } else {
     await ctx.reply(",apt install\t直接回复文件\n ,apt remove [插件名]");
   }
-}
+});
 
 //移除插件
 async function removePlugin(ctx: Content, pluginName: string) {
@@ -75,4 +72,3 @@ async function installPlugin(ctx: Content) {
     await ctx.reply(`安装插件失败！${error}`);
   }
 }
-
