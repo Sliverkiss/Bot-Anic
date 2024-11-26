@@ -5,7 +5,7 @@
  */
 
 import cheerio from "cheerio";
-import { Content } from "telegraf";
+import { Context } from "telegraf";
 
 // 定义类型
 interface MovieItem {
@@ -103,7 +103,7 @@ class JavDB {
 }
 
 // 导出执行方法
-export default async function (ctx: Content) {
+export default async function (ctx: Context) {
   if (!ctx?.message?.text?.startsWith("/av")) return;
   // 发送初始消息
   let message = await ctx.reply("🐱正在查找中...");

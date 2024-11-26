@@ -4,12 +4,12 @@
 !priority=10
  */
 
-import { Content } from "telegraf";
+import { Context } from "telegraf";
 import { pluginCache } from "cache";
 import { toYml } from "Utils";
 import { command } from "decrateor";
 
-export default command(",help")((ctx: Content) => {
+export default command(",help")((ctx: Context) => {
   if (ctx?.message?.text == ",help list") {
     ctx.reply(`<pre>${Array.from(pluginCache.keys()).join(",")}</pre>`, {
       parse_mode: "HTML",

@@ -4,10 +4,10 @@
 !priority=10
  */
 
-import { Content } from "telegraf";
+import { Context } from "telegraf";
 import { command } from "decrateor";
 
-export default command("/script")(async (ctx: Content) => {
+export default command("/script")(async (ctx: Context) => {
   const keyWord = ctx?.message?.text?.split(" ").slice(1).join(" ") || "";
   if (!keyWord) {
     return await ctx.reply("⚠️ 请传入要查询的关键词~", {
@@ -108,7 +108,6 @@ async function getHitokito(): Promise<string> {
 
     return `${hitokotoJson.hitokoto} ${additional}`;
   } catch (e) {
-    logger.error(e);
     return "Failed to fetch data after multiple attempts.";
   }
 }

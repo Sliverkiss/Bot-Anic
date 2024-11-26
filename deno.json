@@ -1,16 +1,21 @@
 {
+  "compilerOptions": {
+    "lib": ["deno.unstable", "dom"] 
+  },
   "tasks": {
-    "start": "deno -c deno.json -A app.ts",
-    "build": "deno build --unstable --out dist/main.js src/main.ts"
+    "start": "deno run -A --unstable-kv app.ts", 
+    "build": "deno bundle --unstable src/main.ts dist/main.js" 
   },
   "imports": {
     "telegraf": "https://esm.sh/telegraf@4.16.0",
     "path": "https://deno.land/std@0.125.0/path/mod.ts",
     "dotenv": "https://deno.land/x/dotenv@v3.2.2/mod.ts",
     "cheerio": "https://esm.sh/cheerio@1.0.0-rc.12",
+    "CryptoJS":"https://esm.sh/crypto-js@4.2.0",
     "esbuild": "https://deno.land/x/esbuild@v0.24.0/mod.js",
     "cache": "./core/lib/cache.ts",
-    "decrateor":"./core/lib/decrateor.ts",
+    "kv": "./core/kv/db.ts",
+    "decrateor": "./core/lib/decrateor.ts",
     "fs": "./core/lib/fs.ts",
     "QingLong": "./core/lib/QingLong.ts",
     "MongoDB": "./core/lib/MongoDB.ts",

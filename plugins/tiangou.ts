@@ -4,10 +4,10 @@
 !priority=10
  */
 
-import { Content } from "telegraf";
+import { Context } from "telegraf";
 import { command } from "decrateor";
 
-export default command(",tiangou")(async (ctx: Content) => {
+export default command(",tiangou")(async (ctx: Context) => {
   const response = await fetch(`https://api.52vmy.cn/api/wl/yan/tiangou`);
   const res = await response.json();
   if (res.code === 200) {

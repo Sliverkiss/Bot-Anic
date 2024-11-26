@@ -4,9 +4,9 @@
 !priority=10
  */
 
-import { Content } from "telegraf";
+import { Context } from "telegraf";
 import { command } from "decrateor";
 
-export default command("/start")((ctx: Content) => {
+export default command("/start")((ctx: Context) => {
   ctx.reply("你好！这里是Anic-Bot，有什么可以为您效劳的吗？");
 });

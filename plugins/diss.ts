@@ -3,10 +3,10 @@
 !desc=儒雅随和，用于兑现，指令为,diss
 !priority=10
  */
-import { Content } from "telegraf";
+import { Context } from "telegraf";
 import { command } from "decrateor";
 
-export default command(",diss")(async (ctx: Content) => {
+export default command(",diss")(async (ctx: Context) => {
   const dissMessage = await getDissMessage();
   if (dissMessage) {
     await ctx.reply(dissMessage);

@@ -5,10 +5,10 @@
  */
 
 import { dirname, resolve, join } from "path";
-import { Content } from "telegraf";
+import { Context } from "telegraf";
 import { command } from "decrateor";
 
-export default command(",apt")(async (ctx: Content) => {
+export default command(",apt")(async (ctx: Context) => {
   const messageText = ctx?.message?.text ?? "";
   const [, action, pluginName] = messageText.split(" ");
 
@@ -28,7 +28,7 @@ export default command(",apt")(async (ctx: Content) => {
 });
 
 //移除插件
-async function removePlugin(ctx: Content, pluginName: string) {
+async function removePlugin(ctx: Context, pluginName: string) {
   const __dirname = dirname(new URL(import.meta.url).pathname);
   const rootDir = resolve(__dirname, "..");
   const pluginDir = join(rootDir, "plugins", `${pluginName}.ts`);
@@ -43,7 +43,7 @@ async function removePlugin(ctx: Content, pluginName: string) {
 }
 
 //安装插件
-async function installPlugin(ctx: Content) {
+async function installPlugin(ctx: Context) {
   const message = ctx?.message?.reply_to_message;
   if (!message?.document) {
     return await ctx.reply("⚠️请在需要安装的插件下回复该指令～");

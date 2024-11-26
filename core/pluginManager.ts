@@ -4,7 +4,7 @@ import {
   updateFunctionCache,
   pluginList,
 } from "./lib/cache.ts";
-import { Content } from "telegraf";
+import { Context } from "telegraf";
 
 export class PluginManager {
   private debounceTimeoutId: number | null = null;
@@ -25,17 +25,13 @@ export class PluginManager {
   }
 
   // 遍历缓存并执行每个插件
-  async executePlugins(ctx: Content) {
+  async executePlugins(ctx: Context) {
 
     // 遍历插件列表并执行每个插件
     for (const plugin of pluginList) {
-      //const pluginCode = functionCache.get(plugin.uuid)||"";
-      //const pluginPath = `.${this.pluginDir}/${plugin?.uuid}.ts`;
       try {
         const module=functionCache.get(plugin?.uuid);
-        //const module = await import(pluginPath);
         module.default(ctx);
-        //await this.sandbox.execute(pluginPath, ctx);
       } catch (error) {
         await ctx.reply(
           `<b>⚠️ Error executing plugin ${plugin?.uuid}:</b>\n<pre>${error}</pre>`,
