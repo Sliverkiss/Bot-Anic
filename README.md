@@ -3,5 +3,5 @@
 
 ## 调试启动命令
 ```deno
-deno run --import-map=import_map.json -c tsconfig.json --allow-all app.ts
+deno task start
 ```
