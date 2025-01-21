@@ -58,7 +58,7 @@ function extractData(
 // 获取数据
 async function getData(): Promise<any> {
   const response = await fetch(
-    "https://github.arka.us.kg/Sliverkiss/waf/main/sliverkiss.gallery.json"
+    "https://github.mimic.us.kg/Sliverkiss/waf/main/sliverkiss.gallery.json"
   );
   const data = await response.json();
   return data.task;
