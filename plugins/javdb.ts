@@ -16,6 +16,25 @@ interface MovieItem {
   score: string;
   meta: string;
   hasMagnet: boolean;
+  director?: string;
+  maker?: string;
+  series?: string;
+  duration?: string;
+  actors?: Array<{name: string, gender: 'male' | 'female'}>;
+  tags?: string[];
+  previewVideo?: string;
+  previewImages?: string[];
+  detail?: {
+    director?: string;
+    maker?: string;
+    series?: string;
+    duration?: string;
+    releaseDate?: string;
+    actors?: Array<{name: string, gender: 'male' | 'female'}>;
+    tags?: string[];
+    previewVideo?: string;
+    previewImages?: string[];
+  };
 }
 
 class JavDB {
@@ -58,7 +77,6 @@ class JavDB {
           thumb: $a.find(".cover img").attr("src")!,
           score: $a.find(".score span.value").text()?.trim() || "",
           meta: $a.find(".meta").text()?.trim() || "",
-          hasMagnet: !!$a.find(".tags").text()?.replace(/\s+/g, ""),
         };
       });
   }
@@ -90,13 +108,88 @@ class JavDB {
     return magnet;
   }
 
+  async getDetail(url: string) {
+    const res = await fetch(url, {
+      method: "GET",
+      headers: {
+        accept: "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8",
+        "accept-language": "zh-CN,zh;q=0.9",
+      },
+    });
+    const html = await res.text();
+    const $ = cheerio.load(html);
+    
+    const detail: any = {};
+    
+    // 通用函数：获取面板中的值
+    const getPanelValue = (label: string) => {
+      const el = $(`.panel-block strong:contains("${label}")`).parent().find('.value');
+      return el.text().trim();
+    };
+
+    // 通用函数：获取面板中的链接值
+    const getPanelLinkValue = (label: string) => {
+      const el = $(`.panel-block strong:contains("${label}")`).parent().find('.value a');
+      return el.first().text().trim();
+    };
+
+    // 获取基本信息
+    detail.director = getPanelLinkValue('導演');
+    detail.maker = getPanelLinkValue('片商');
+    detail.series = getPanelLinkValue('系列');
+    detail.duration = getPanelValue('時長');
+    detail.releaseDate = getPanelValue('日期');
+    
+    // 获取演员列表
+    const actorsBlock = $(`.panel-block strong:contains("演員")`).parent().find('.value');
+    detail.actors = actorsBlock.find('a').map((_, el) => {
+      const $el = $(el);
+      return {
+        name: $el.text().trim(),
+        gender: $el.next('.symbol').hasClass('female') ? 'female' : 'male'
+      };
+    }).get();
+
+    // 获取标签
+    const tagsBlock = $(`.panel-block strong:contains("類別")`).parent().find('.value');
+    detail.tags = tagsBlock.find('a').map((_, el) => $(el).text().trim()).get();
+
+    // 获取评分
+    const scoreEl = $('.score');
+    if (scoreEl.length) {
+      detail.score = scoreEl.find('.value').text().trim();
+    }
+
+    // 获取预览内容
+    const previewVideo = $('#preview-video source').attr('src');
+    if (previewVideo) {
+      detail.previewVideo = previewVideo;
+    }
+
+    // 获取预览图片
+    const previewImages = $('.preview-images .tile-item.preview-images-item');
+    if (previewImages.length) {
+      detail.previewImages = previewImages.map((_, el) => $(el).attr('href')).get();
+    }
+
+    // 过滤掉空值
+    Object.keys(detail).forEach(key => {
+      if (!detail[key] || 
+          (Array.isArray(detail[key]) && detail[key].length === 0) || 
+          detail[key] === '') {
+        delete detail[key];
+      }
+    });
+
+    return detail;
+  }
+
   async main() {
     await this.search();
     const item = this.list.find((item) => item.code === this.code);
-    console.log(item);
-    if (item?.hasMagnet) {
-      const magnet = await this.getMagnet(item.link);
-      Object.assign(item, { magnet });
+    if (item) {
+      const detail = await this.getDetail(item.link);
+      Object.assign(item, { detail });
     }
     return item;
   }
@@ -104,6 +197,112 @@ class JavDB {
 
 // 导出执行方法
 export default async function (ctx: Context) {
+  // 处理 inline query
+  if (ctx.inlineQuery) {
+    const query = ctx.inlineQuery.query.trim().toUpperCase();
+    if (!query) return;
+    console.log(query);
+
+    try {
+      const javdb = new JavDB(query);
+      await javdb.search();
+      
+      if (javdb.list.length > 0) {
+        // 构建搜索结果列表
+        const results = javdb.list.map((item, index) => ({
+          type: 'article',
+          id: index.toString(),
+          title: item.title,
+          description: item.meta,
+          thumb_url: item.thumb,
+          input_message_content: {
+            message_text: `${item.title}`,
+          },
+          reply_markup: {
+            inline_keyboard: [[
+              {
+                text: "获取详情",
+                callback_data: `detail_${item.code}`
+              }
+            ]]
+          }
+        }));
+
+        await ctx.answerInlineQuery(results, {
+          cache_time: 10, // 缓存1小时
+        });
+      } else {
+        await ctx.answerInlineQuery([], {
+          switch_pm_text: "未找到相关番号",
+          switch_pm_parameter: "start"
+        });
+      }
+    } catch (error) {
+      console.error(error);
+      await ctx.answerInlineQuery([], {
+        switch_pm_text: "搜索出错，请稍后重试",
+        switch_pm_parameter: "error"
+      });
+    }
+    return;
+  }
+
+  // 处理 callback query (当用户点击"获取详情"按钮时)
+  if (ctx.callbackQuery && ctx.callbackQuery.data?.startsWith('detail_')) {
+    const code = ctx.callbackQuery.data.replace('detail_', '');
+    const javdb = new JavDB(code);
+    const movie = await javdb.main();
+    
+    if (movie) {
+      const { id } = extractInfo(movie?.title);
+      let score = generateRating(movie?.score);
+      
+      // 构建详细信息
+      const details: string[] = [];
+      if (movie.detail?.director) details.push(`导演: ${movie.detail.director}`);
+      if (movie.detail?.releaseDate) details.push(`日期: ${movie.detail.releaseDate}`);
+      if (movie.detail?.actors) {
+        const actors = movie.detail.actors.map(a => a.name).join('、');
+        details.push(`演员: ${actors}`);
+      }
+
+      // 构建按钮
+      const buttons = [[
+        {
+          text: "在线观看",
+          url: `https://missav.com/${code}`
+        }
+      ]];
+
+      // 如果有预览视频，添加预览按钮
+      if (movie.detail?.previewVideo) {
+        const previewVideo = movie.detail.previewVideo.startsWith('https:') ? 
+          movie.detail.previewVideo : 
+          'https:' + movie.detail.previewVideo;
+          
+        buttons[0].push({
+          text: "预告片",
+          url: previewVideo
+        });
+      }
+
+      await ctx.editMessageText(`
+番号: ${id}
+${movie?.title}
+${details.join('\n')}
+评分    ${score}
+
+<a href="${movie.thumb}">封面图</a>
+`, {
+        parse_mode: "HTML",
+        reply_markup: {
+          inline_keyboard: buttons
+        }
+      });
+    }
+  }
+
+  // 原有的命令处理逻辑
   if (!ctx?.message?.text?.startsWith("/av")) return;
   // 发送初始消息
   let message = await ctx.reply("🐱正在查找中...");
@@ -118,19 +317,76 @@ export default async function (ctx: Context) {
     // 创建JavDB实例并查询信息
     const javdb = new JavDB(code);
     const movie = await javdb.main();
+    console.log(movie);
     if (movie) {
       // 番号和介绍
       const { id, description } = extractInfo(movie?.title);
       // 评分
       let score = generateRating(movie?.score);
-      const caption = `<b>${id} / ${movie?.meta} /<a href="${movie.thumb}"> </a><a href="https://missav.com/${code}">在线观看</a></b>\n${score}\n<a href="https://t.me/jisou2bot?start=a_5232284790">Search code & Watch 🔍</a>\n<pre>${description}</pre>`;
-      await ctx.telegram.editMessageText(
+      
+      // 构建详细信息字符串
+      const details: string[] = [];
+      if (movie.detail?.director) details.push(`导演: ${movie.detail.director}`);
+      if (movie.detail?.series) details.push(`系列: ${movie.detail.series}`);
+      if (movie.detail?.releaseDate) details.push(`日期: ${movie.detail.releaseDate}`);
+      
+      // 处理演员信息
+      if (movie.detail?.actors && movie.detail.actors.length > 0) {
+        const actors = movie.detail.actors.map(a => a.name).join('、');
+        details.push(`演员: ${actors}`);
+      }
+
+      // 处理标签信息
+      if (movie.detail?.tags && movie.detail.tags.length > 0) {
+        const tags = movie.detail.tags.join('、');
+        details.push(`标签: ${tags}`);
+      }
+
+      // 构建完整的 caption
+      const caption = `
+番号: ${id}
+${movie?.title}
+${details.join('\n')}
+评分    ${score}`;
+
+      // 构建按钮数组
+      const buttons = [
+        {
+          text: "在线观看",
+          url: `https://missav.ws/${code}`
+        }
+      ];
+
+      // 如果有预览视频，添加预览按钮
+      if (movie.detail?.previewVideo) {
+        const previewVideo = movie.detail.previewVideo.startsWith('https:') ? movie.detail.previewVideo : 'https:' + movie.detail.previewVideo;
+        buttons.push({
+          text: "预告片",
+          url: previewVideo
+        });
+      }
+
+      // 删除之前的消息
+      await ctx.telegram.deleteMessage(message.chat.id, message.message_id);
+      
+      // 发送带图片的新消息
+      message = await ctx.telegram.sendPhoto(
         message.chat.id,
-        message.message_id,
-        null,
-        caption,
-        { parse_mode: "HTML" }
+        movie.thumb,
+        {
+          caption: caption,
+          parse_mode: "HTML",
+          has_spoiler: true,
+          reply_markup: {
+            inline_keyboard: [buttons]
+          }
+        }
       );
+      
+      // 设置定时删除
+      setTimeout(async () => {
+        await ctx.telegram.deleteMessage(message.chat.id, message.message_id);
+      }, 60000); // 60秒后删除消息
     } else {
       // 修改消息，告知番号未找到
       await ctx.telegram.editMessageText(
