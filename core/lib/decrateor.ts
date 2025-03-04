@@ -12,7 +12,11 @@ export function command(cmd: string | ((text: string) => boolean)) {
   
         // 如果匹配，则执行 handler
         if (isMatch) {
-          handler(ctx);
+          try {
+              handler(ctx);
+          } catch(e) {
+              ctx.reply(e)
+          }
         }
       };
     };
