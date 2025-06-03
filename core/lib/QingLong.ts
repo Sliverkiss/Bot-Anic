@@ -34,9 +34,7 @@ export class QingLong {
                 body: body
             };
             const response = await fetch(url, opts);
-            if (!response.ok) {
-                throw new Error(`HTTP error! Status: ${response.status}`);
-            }
+            
             const res = await response.json();
             return res;
         } catch (error) {
@@ -164,7 +162,7 @@ export class QingLong {
             body: JSON.stringify(obj),
         };
         try {
-            const { code, message } = await this.request(options, "POST");
+            const { code, message } = await this.request(options, "PUT");
             if (code === 200) {
                 console.log(`✅The environment variable was updated successfully.`);
                 await this.enableEnv([obj.id]);
@@ -191,7 +189,7 @@ export class QingLong {
             body: JSON.stringify(ids),
         };
         try {
-            const { code, message } = await this.request(options, "POST");
+            const { code, message } = await this.request(options, "DELETE");
             if (code === 200) {
                 console.log(`✅The environment variable was deleted successfully.`);
             } else {
